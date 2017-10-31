@@ -11,7 +11,7 @@ const certFile = path.resolve(__dirname, 'ssl/vodafone.crt')
  
 
 const FAKESIMLIST = true;
-const FAKESIMDATA = false;
+const FAKESIMDATA = true;
 const FAKESIMLOCATION = true;
 
 
