@@ -10,9 +10,9 @@ const certFile = path.resolve(__dirname, 'ssl/vodafone.crt')
     , keyFile = path.resolve(__dirname, 'ssl/vodafone.key')
  
 
-const FAKESIMLIST = true
-const FAKESIMDATA = true
-const FAKESIMLOCATION = true
+const FAKESIMLIST = true;
+const FAKESIMDATA = false;
+const FAKESIMLOCATION = true;
 
 
 //
@@ -280,20 +280,18 @@ async function main() {
   }
 
   // figure out how many & which devices to get
-  let max = Math.min(program.max || theList.length);
   let start = program.start || 0;
-  console.warn("starting at "+start);
+  let num = program.num || theList.length;
+  let end = Math.min(start+num, theList.length-start);
 
-  const OFFSET = program.offset || 0;
-  start = start + OFFSET;
-  max = max + OFFSET;
+  console.warn("starting at "+start);
 
   let active = 0;
   let found = 0;
 
   // if we use _.each here, things execute out of order due to the wonders of async programming.
-  for (let i=start; i<max; i=i+1 ) {
-    console.warn(`${i} of ${max}`)
+  for (let i=start; i<end; i=i+1 ) {
+    console.warn(`${i} -> ${end}`)
     let s = theList[i];
     if (s.state == 'A') {
       active = active + 1;
@@ -318,9 +316,8 @@ async function main() {
 
 program
   .version('0.1.0')
-  .option('-m, --max <n>', 'Max number to grab', parseInt)
+  .option('-n, --num <n>', 'Max number to grab', parseInt)
   .option('-s, --start <n>', 'Starting number', parseInt)
-  .option('-o --offset <n>', 'Offset', parseInt)
   .option('-l --list','Only get the SIM list XML')
   .description('run')
   .parse(process.argv);

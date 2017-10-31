@@ -26,8 +26,7 @@ Output is XML response from server, and goes to stdout. Status messages on stder
 
 ### Options
 -V, --version    output the version number
--m, --max <n>    Max number of devices to grab
+-n, --num <n>    Max number of devices to grab
 -s, --start <n>  Starting number
--o --offset <n>  Offset
 -l --list        Only get the SIM list XML
 -h, --help       output usage information
