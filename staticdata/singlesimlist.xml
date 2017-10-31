@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+	<SOAP-ENV:Body>
+		<getFilteredDeviceListv4Response xmlns="http://ws.gdsp.vodafone.com/" xmlns:msgns="http://ws.gdsp.vodafone.com/">
+			<return xmlns="">
+				<returnCode>
+					<majorReturnCode>000</majorReturnCode>
+					<minorReturnCode>0000</minorReturnCode>
+				</returnCode>
+				<matchedResults>1435</matchedResults>
+				<deviceList>
+					<device>
+						<imsi>204046855627800</imsi>
+						<msisdn>204046855627800</msisdn>
+						<iccid>89314404000104106712</iccid>
+						<customerServiceProfile>Global_5MB_Tiers1_2_3_5</customerServiceProfile>
+						<ragStatus>R</ragStatus>
+						<state>X</state>
+						<rogueUsageAlertPresent>N</rogueUsageAlertPresent>
+						<highUsageAlertPresent>N</highUsageAlertPresent>
+						<locationRequestedFlag>N</locationRequestedFlag>
+						<locationPollingInterval>0</locationPollingInterval>
+						<locationTrackingPeriod>0</locationTrackingPeriod>
+					</device>
+				</deviceList>
+			</return>
+		</getFilteredDeviceListv4Response>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
