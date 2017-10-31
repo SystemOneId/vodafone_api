@@ -15,13 +15,17 @@ const FAKESIMDATA = true
 const FAKESIMLOCATION = true
 
 
-// returns a promise resolving to the contents of the canned sim response file
+//
+// FUNCTIONS FOR GETTING DATA ON A SPECIFIC SIM
+///
+
+// returns the contents of the canned sim response file
 function readSIMFromFile( deviceId ) {
   let xml = fs.readFileSync("./staticdata/onesim.xml","utf8");
   return xml;
 }
 
-// fetches the info on a SIM from Vodafone
+// returns a Promise that resolves to the info on a SIM from Vodafone server
 function retreiveSIMdetails(deviceId) {
   return new Promise( function(resolve, reject) {
     // console.log(`Fetching SIM details from Vodafone: ${deviceId}`)
@@ -55,7 +59,6 @@ function retreiveSIMdetails(deviceId) {
     </soap:Envelope>
     `
      
-    // request.get(options, function (error, response, body) {
     request.get(options)
     .then( ( response ) => {
       resolve(response.body);
@@ -63,16 +66,14 @@ function retreiveSIMdetails(deviceId) {
   });
 }
 
+// decides whether or not to fetch fake data
 async function getDeviceDetails(deviceId) {
-
   let detailsXML = null;
-
   if (FAKESIMDATA) {
     detailsXML = readSIMFromFile();
   } else {
     detailsXML = await retreiveSIMdetails(deviceId);
   }
-
   details = await parseDeviceDetails(detailsXML);
   return details;
 }
@@ -80,6 +81,7 @@ async function getDeviceDetails(deviceId) {
 // returns a Promise to parse the XML from the device details, and resolve with the sessionLastCellId value
 function parseDeviceDetails(detailsXML) {
 
+  // played with promisifying the XML parser but gave up quick.
   return new Promise( function(resolve, reject) {
     parseString(detailsXML, function(err, result) {
 
@@ -89,7 +91,7 @@ function parseDeviceDetails(detailsXML) {
       var response = result['SOAP-ENV:Envelope']['SOAP-ENV:Body'][0]['getDeviceDetailsResponse'][0].return[0];
       var infoItems = response.deviceInformationList[0].deviceInformationItem;
 
-      // console.dir(infoItems);
+      // spin through the items in the sim data and just return the last cell ID
       _.forEach(infoItems, (value) => {
         if (value.itemValue) {
           if (value.itemName == 'sessionLastCellId') {
@@ -102,16 +104,15 @@ function parseDeviceDetails(detailsXML) {
   });
 }
 
-// getDeviceDetails(204043253111386);
-// getDeviceDetails(program.id);
-
-
 // 
-//  DEVICE LOCATION
+// FUNCTIONS TO LOCATE DEVICE LOCATION
+//
+// Uses the Unwired Labs database
 // 
 
+// decide whether to use real location data, or fake it
+// returns either data or a Promise
 function getDeviceLocation(cellId) {
-
   if (FAKESIMLOCATION) {
     return {lat:123, lon:456};
   } else {
@@ -119,6 +120,8 @@ function getDeviceLocation(cellId) {
   }
 }
 
+// fetch a device location using the cellID format returned by Vodafone, which comprises
+// the mcc, mnc, lac, and cid. Really!
 function receiveDeviceLocation(cellId) {
   return new Promise( function(resolve, reject) {
 
@@ -166,7 +169,6 @@ function readSingleSIMListFromFile() {
   return(xml);
 }
 
-
 // returns the contents of the canned simlist file
 function readSIMListFromFile() {
   console.warn("Reading SIM List from File...");
@@ -174,8 +176,10 @@ function readSIMListFromFile() {
   return(xml);
 }
 
-
-// pull the SIM list from Vodafone - NOTE - ONLY PULLS 1000 AT A TIME
+// Pull the SIM list from Vodafone - NOTE - ONLY PULLS 1000 AT A TIME, MAX
+// so if you want more, you'll have to call this more than once. One field
+// of the return structure tell you how many matches there are total. For
+// now I'm combining calls manually by merging XML files.
 function retrieveSIMList() {
   return new Promise( function(resolve, reject) {
 
@@ -227,7 +231,6 @@ function parseSIMList( simlist ) {
     console.warn("Parsing list...");
 
     parseString(simlist, function(err, result) {
-
       var list = result['SOAP-ENV:Envelope']['SOAP-ENV:Body'][0]['getFilteredDeviceListv4Response'][0].return[0].deviceList[0].device;
       allSIMs = [];
       _.forEach(list, (value) => {
@@ -239,7 +242,7 @@ function parseSIMList( simlist ) {
   });
 }
 
-// returns a Promise that resolves to a list of SIM ID
+// returns a Promise that resolves to a list of SIM IDs
 async function getSIMList(listOnly) {
   let theListResponse = null;
   
@@ -268,13 +271,15 @@ async function getSIMList(listOnly) {
 
 async function main() {
 
-
+  // get the list of devices we're working with
   let theList = await getSIMList(program.list);
+
+  // all we want is the list, we're done.
   if (program.list) {
     return;
   }
 
-
+  // figure out how many & which devices to get
   let max = Math.min(program.max || theList.length);
   let start = program.start || 0;
   console.warn("starting at "+start);
@@ -286,7 +291,7 @@ async function main() {
   let active = 0;
   let found = 0;
 
-  // if I use _.each here, things execute out of order.
+  // if we use _.each here, things execute out of order due to the wonders of async programming.
   for (let i=start; i<max; i=i+1 ) {
     console.warn(`${i} of ${max}`)
     let s = theList[i];
@@ -308,9 +313,6 @@ async function main() {
 
   console.warn(`${active} active, ${found} found`);
 
-  // _.each(theList, function(d) {
-  //   console.log(`${d.imsi},${d.customerServiceProfile},${d.sessionLastCellId},${d.lat},${d.lon}`)
-  // })
   return;
 }
 
@@ -322,9 +324,6 @@ program
   .option('-l --list','Only get the SIM list XML')
   .description('run')
   .parse(process.argv);
-
-
-  // .option('-i, --id [id]', 'Add the specified number of results', parseInt)
 
 main();
 
