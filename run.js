@@ -6,8 +6,8 @@ const parseString = require('xml2js').parseString;
 const {promisify} = require('util');
 const _ = require('lodash');
 
-const certFile = path.resolve(__dirname, 'ssl/vodafone.crt')
-    , keyFile = path.resolve(__dirname, 'ssl/vodafone.key')
+const certFile = path.resolve(__dirname, 'auth/vodafone.crt')
+    , keyFile = path.resolve(__dirname, 'auth/vodafone.key')
  
 
 const FAKESIMLIST = true;
