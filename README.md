@@ -21,6 +21,9 @@ At top of run.js are constants that define:
 
 I suggest faking as much as possible while testing. The API calls to Unwired Labs are limited to 5000/month (on their free tier).
 
+### Certificates
+Requires SystemOne's authorization token files in an "auth" subdirectory. Also, your computer must be whitelisted to use the API.
+
 ### Output
 Output is XML response from server, and goes to stdout. Status messages on stderr.
 
