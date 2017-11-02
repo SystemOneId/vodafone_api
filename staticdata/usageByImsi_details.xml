@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+	<SOAP-ENV:Body>
+		<getReportDetailsResponse xmlns="http://ws.gdsp.vodafone.com/" xmlns:msgns="http://ws.gdsp.vodafone.com/">
+			<return xmlns="">
+				<returnCode>
+					<majorReturnCode>000</majorReturnCode>
+					<minorReturnCode>0000</minorReturnCode>
+				</returnCode>
+				<reportDetails>
+					<formatsSupported>
+						<format>XML</format>
+						<format>CSV</format>
+						<format>PDF</format>
+					</formatsSupported>
+					<reportParameters>
+						<restriction>MANDATORY</restriction>
+						<parameterGroups>
+							<defaultValue/>
+							<javaType>java.sql.Date</javaType>
+							<name>PERIOD_START</name>
+						</parameterGroups>
+						<parameterGroups>
+							<defaultValue/>
+							<javaType>java.sql.Date</javaType>
+							<name>PERIOD_END</name>
+						</parameterGroups>
+					</reportParameters>
+				</reportDetails>
+			</return>
+		</getReportDetailsResponse>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

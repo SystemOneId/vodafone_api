@@ -1,0 +1,71 @@
+<?xml version="1.0" ?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+	<SOAP-ENV:Body>
+		<getReportListResponse xmlns="http://ws.gdsp.vodafone.com/" xmlns:msgns="http://ws.gdsp.vodafone.com/">
+			<return xmlns="">
+				<returnCode>
+					<majorReturnCode>000</majorReturnCode>
+					<minorReturnCode>0000</minorReturnCode>
+				</returnCode>
+				<reportList>
+					<report>
+						<reportName>cspDetailsByCustomer</reportName>
+						<reportDescription>Service Profile Details for Customer</reportDescription>
+					</report>
+					<report>
+						<reportName>highUsageAlerts</reportName>
+						<reportDescription>High Usage Events</reportDescription>
+					</report>
+					<report>
+						<reportName>highUsageAlertsv3</reportName>
+						<reportDescription>High Usage Events</reportDescription>
+					</report>
+					<report>
+						<reportName>highUsageDevices</reportName>
+						<reportDescription>High Packet-Data Usage Devices</reportDescription>
+					</report>
+					<report>
+						<reportName>highUsageDevicesv3</reportName>
+						<reportDescription>High Packet-Data Usage Devices</reportDescription>
+					</report>
+					<report>
+						<reportName>itemisedUsageByImsi</reportName>
+						<reportDescription>Itemised Packet-Data Usage with SMS Events for IMSI</reportDescription>
+					</report>
+					<report>
+						<reportName>operationalCustomerUsage</reportName>
+						<reportDescription>Customer Overview</reportDescription>
+					</report>
+					<report>
+						<reportName>operationalCustomerUsagev2</reportName>
+						<reportDescription>Customer Overview</reportDescription>
+					</report>
+					<report>
+						<reportName>rogueUsageAlerts</reportName>
+						<reportDescription>Rogue Usage Events</reportDescription>
+					</report>
+					<report>
+						<reportName>rogueUsageAlertsv3</reportName>
+						<reportDescription>Rogue Usage Events</reportDescription>
+					</report>
+					<report>
+						<reportName>stateChanges</reportName>
+						<reportDescription>State Changes Summary</reportDescription>
+					</report>
+					<report>
+						<reportName>stateCounts</reportName>
+						<reportDescription>State Counts Summary</reportDescription>
+					</report>
+					<report>
+						<reportName>usageByImsi</reportName>
+						<reportDescription>Packet-Data Usage by IMSI</reportDescription>
+					</report>
+					<report>
+						<reportName>usageBySimv4</reportName>
+						<reportDescription>Packet-Data Usage By SIM And APN</reportDescription>
+					</report>
+				</reportList>
+			</return>
+		</getReportListResponse>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

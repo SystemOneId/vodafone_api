@@ -264,12 +264,219 @@ async function getSIMList(listOnly) {
 } 
 
 
+//
+// RERPORTS
+//
+
+// returns a Promise that resolves to the list of reports
+function getReportList() {
+  return new Promise( function(resolve, reject) {
+    // console.log(`Fetching SIM details from Vodafone: ${deviceId}`)
+    var options = {
+      url: 'https://m2mprdapi.vodafone.com:11851/GDSPWebServices/GetReportListService',
+      agentOptions: {
+        cert: fs.readFileSync(certFile),
+        key: fs.readFileSync(keyFile),
+      // Or use `pfx` property replacing `cert` and `key` when using private key, certificate and CA certs in PFX or PKCS12 format:
+      // pfx: fs.readFileSync(pfxFilePath),
+          passphrase: 'Vodafone1!',
+          securityOptions: 'SSL_OP_NO_SSLv3'
+      },
+      resolveWithFullResponse: true,
+    };
+
+    options.body = `<?xml version="1.0" encoding="utf-8"?>
+    <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <soap:Header>
+        <gdspHeader xmlns="http://ws.gdsp.vodafone.com/">
+          <gdspCredentials xmlns="">
+            <password>XylophoneIsFun!</password>
+            <userId>aarontest</userId>
+          </gdspCredentials>
+        </gdspHeader></soap:Header>
+      <soap:Body>
+        <getReportList xmlns="http://ws.gdsp.vodafone.com/">
+        </getReportList>
+      </soap:Body>
+    </soap:Envelope>
+    `
+            // <parameter xmlns="http://www.w3.org/2001/XMLSchema/" name="PERIOD_START" value="2017-10-30T00:00:00+00:00"/>
+            // <parameter xmlns="http://www.w3.org/2001/XMLSchema/" name="PERIOD_END" value="2017-10-31T00:00:00+00:00"/>
+
+
+            // <parameter xmlns="http://ws.gdsp.vodafone.com/">
+            //   <name xmlns="http://www.w3.org/2001/XMLSchema/">PERIOD_START</name>
+            //   <value xmlns="http://www.w3.org/2001/XMLSchema/">2017-10-30T00:00:00+00:00</value>
+            // </parameter>
+            // <parameter xmlns="http://ws.gdsp.vodafone.com/">
+            //   <name xmlns="http://www.w3.org/2001/XMLSchema/">PERIOD_END</name>
+            //   <value xmlns="http://www.w3.org/2001/XMLSchema/">2017-10-31T00:00:00+00:00</value>
+            // </parameter>
+     
+    request.get(options)
+    .then( ( response ) => {
+      resolve(response.body);
+    });
+  });
+}
+
+// returns a Promise that resolves to the list of reports
+function getReportDetails(reportName) {
+  return new Promise( function(resolve, reject) {
+    // console.log(`Fetching SIM details from Vodafone: ${deviceId}`)
+    var options = {
+      url: 'https://m2mprdapi.vodafone.com:11851/GDSPWebServices/GetReportDetailsService',
+      agentOptions: {
+        cert: fs.readFileSync(certFile),
+        key: fs.readFileSync(keyFile),
+      // Or use `pfx` property replacing `cert` and `key` when using private key, certificate and CA certs in PFX or PKCS12 format:
+      // pfx: fs.readFileSync(pfxFilePath),
+          passphrase: 'Vodafone1!',
+          securityOptions: 'SSL_OP_NO_SSLv3'
+      },
+      resolveWithFullResponse: true,
+    };
+
+    options.body = `<?xml version="1.0" encoding="utf-8"?>
+    <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <soap:Header>
+        <gdspHeader xmlns="http://ws.gdsp.vodafone.com/">
+          <gdspCredentials xmlns="">
+            <password>XylophoneIsFun!</password>
+            <userId>aarontest</userId>
+          </gdspCredentials>
+        </gdspHeader></soap:Header>
+      <soap:Body>
+        <getReportDetails xmlns="http://ws.gdsp.vodafone.com/">
+            <reportName xmlns="">${reportName}</reportName>
+        </getReportDetails>
+      </soap:Body>
+    </soap:Envelope>
+    `
+            // <parameter xmlns="http://www.w3.org/2001/XMLSchema/" name="PERIOD_START" value="2017-10-30T00:00:00+00:00"/>
+            // <parameter xmlns="http://www.w3.org/2001/XMLSchema/" name="PERIOD_END" value="2017-10-31T00:00:00+00:00"/>
+
+
+            // <parameter xmlns="http://ws.gdsp.vodafone.com/">
+            //   <name xmlns="http://www.w3.org/2001/XMLSchema/">PERIOD_START</name>
+            //   <value xmlns="http://www.w3.org/2001/XMLSchema/">2017-10-30T00:00:00+00:00</value>
+            // </parameter>
+            // <parameter xmlns="http://ws.gdsp.vodafone.com/">
+            //   <name xmlns="http://www.w3.org/2001/XMLSchema/">PERIOD_END</name>
+            //   <value xmlns="http://www.w3.org/2001/XMLSchema/">2017-10-31T00:00:00+00:00</value>
+            // </parameter>
+     
+    request.get(options)
+    .then( ( response ) => {
+      resolve(response.body);
+    });
+  });
+}
+
+
+function getReport() {
+  return new Promise( function(resolve, reject) {
+    // console.log(`Fetching SIM details from Vodafone: ${deviceId}`)
+    var options = {
+      url: 'https://m2mprdapi.vodafone.com:11851/GDSPWebServices/GetReportService',
+      agentOptions: {
+        cert: fs.readFileSync(certFile),
+        key: fs.readFileSync(keyFile),
+      // Or use `pfx` property replacing `cert` and `key` when using private key, certificate and CA certs in PFX or PKCS12 format:
+      // pfx: fs.readFileSync(pfxFilePath),
+          passphrase: 'Vodafone1!',
+          securityOptions: 'SSL_OP_NO_SSLv3'
+      },
+      resolveWithFullResponse: true,
+    };
+
+    options.body = `<?xml version="1.0" encoding="utf-8"?>
+    <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+      <soap:Header>
+        <gdspHeader xmlns="http://ws.gdsp.vodafone.com/">
+          <gdspCredentials xmlns="">
+            <password>XylophoneIsFun!</password>
+            <userId>aarontest</userId>
+          </gdspCredentials>
+        </gdspHeader></soap:Header>
+      <soap:Body>
+        <getReport xmlns="http://ws.gdsp.vodafone.com/">
+          <reportName xmlns="">usageByImsi</reportName>
+          <reportFormat xmlns="http://www.w3.org/2001/XMLSchema">CSV</reportFormat>
+          <reportParameters xmlns="http://ws.gdsp.vodafone.com/">
+            <parameter xmlns="http://ws.gdsp.vodafone.com/">
+              <name xmlns="http://www.w3.org/2001/XMLSchema/">PERIOD_START</name>
+              <value xmlns="http://www.w3.org/2001/XMLSchema/">2017-10-30T00:00:00+00:00</value>
+            </parameter>
+            <parameter xmlns="http://ws.gdsp.vodafone.com/">
+              <name xmlns="http://www.w3.org/2001/XMLSchema/">PERIOD_END</name>
+              <value xmlns="http://www.w3.org/2001/XMLSchema/">2017-10-31T00:00:00+00:00</value>
+            </parameter>
+          </reportParameters>
+        </getReport>
+      </soap:Body>
+    </soap:Envelope>
+    `
+
+
+          // <reportParameters xmlns="">
+          //   <parameter xmlns="">
+          //     <name xmlns="">PERIOD_START</name>
+          //     <value xmlns="">2017-10-30T00:00:00+00:00</value>
+          //   </parameter>
+          //   <parameter xmlns="">
+          //     <name xmlns="">PERIOD_END</name>
+          //     <value xmlns="">2017-10-31T00:00:00+00:00</value>
+          //   </parameter>
+          // </reportParameters>
+          
+            // <parameter Name="PERIOD_START" Value="2017-10-30T00:00:00+00:00"/>
+            // <parameter Name="PERIOD_END" Value="2017-10-31T00:00:00+00:00"/>
+
+          // <reportParameters xmlns="http://ws.gdsp.vodafone.com/">
+          //   <parameter xmlns="http://ws.gdsp.vodafone.com/">
+          //     <name xmlns="http://www.w3.org/2001/XMLSchema/">PERIOD_START</name>
+          //     <value xmlns="http://www.w3.org/2001/XMLSchema/">2017-10-30T00:00:00+00:00</value>
+          //   </parameter>
+          //   <parameter xmlns="http://ws.gdsp.vodafone.com/">
+          //     <name xmlns="http://www.w3.org/2001/XMLSchema/">PERIOD_END</name>
+          //     <value xmlns="http://www.w3.org/2001/XMLSchema/">2017-10-31T00:00:00+00:00</value>
+          //   </parameter>
+          // </reportParameters>
+
+
+
+            // <parameter xmlns="http://www.w3.org/2001/XMLSchema/" name="PERIOD_START" value="2017-10-30T00:00:00+00:00"/>
+            // <parameter xmlns="http://www.w3.org/2001/XMLSchema/" name="PERIOD_END" value="2017-10-31T00:00:00+00:00"/>
+
+
+            // <parameter xmlns="http://ws.gdsp.vodafone.com/">
+            //   <name xmlns="http://www.w3.org/2001/XMLSchema/">PERIOD_START</name>
+            //   <value xmlns="http://www.w3.org/2001/XMLSchema/">2017-10-30T00:00:00+00:00</value>
+            // </parameter>
+            // <parameter xmlns="http://ws.gdsp.vodafone.com/">
+            //   <name xmlns="http://www.w3.org/2001/XMLSchema/">PERIOD_END</name>
+            //   <value xmlns="http://www.w3.org/2001/XMLSchema/">2017-10-31T00:00:00+00:00</value>
+            // </parameter>
+     
+    request.get(options)
+    .then( ( response ) => {
+      resolve(response.body);
+    });
+  });
+}
+
 // 
 // MAIN
 // 
 
 
 async function main() {
+
+  // let theReports = await getReportDetails('cspDetailsByCustomer');
+  let theReports = await getReport();
+  console.log(theReports);
+  return;
 
   // get the list of devices we're working with
   let theList = await getSIMList(program.list);
