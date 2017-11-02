@@ -42,9 +42,6 @@ function callVodafoneAPI(command, optionsbody) {
   </soap:Body>    
 </soap:Envelope>`
      
-
-  console.log(options.body);
-
     request.get(options)
     .then( ( response ) => {
       resolve(response.body);
