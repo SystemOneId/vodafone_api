@@ -11,9 +11,9 @@ const certFile = path.resolve(__dirname, 'auth/vodafone.crt')
     , keyFile = path.resolve(__dirname, 'auth/vodafone.key')
  
 
-const FAKESIMLIST = true;
+const FAKESIMLIST = false;
 const FAKESIMDATA = false;
-const FAKESIMLOCATION = true;
+const FAKESIMLOCATION = false;
 
 
 //
@@ -28,6 +28,7 @@ function readSIMFromFile( deviceId ) {
 
 // returns a Promise that resolves to the info on a SIM from Vodafone server
 function retreiveSIMdetails(deviceId) {
+  console.warn(`getting data for ${deviceId}`);
   return callVodafoneAPI( 'getDeviceDetails',
     `<getDeviceDetails xmlns="http://ws.gdsp.vodafone.com/">
         <deviceId xmlns="">${deviceId}</deviceId>
@@ -149,13 +150,13 @@ function readSIMListFromFile() {
 // so if you want more, you'll have to call this more than once. One field
 // of the return structure tell you how many matches there are total. For
 // now I'm combining calls manually by merging XML files.
-function retrieveSIMList() {
+function retrieveSIMList(page) {
     console.warn("Grabbing SIM List from Vodafone...");
 
     return callVodafoneAPI( 'getFilteredDeviceListv4',
       `<getFilteredDeviceListv4 xmlns="http://ws.gdsp.vodafone.com/">
-          <pageSize xmlns="">2000</pageSize>
-          <pageNumber xmlns="">2</pageNumber>
+          <pageSize xmlns="">1000</pageSize>
+          <pageNumber xmlns="">${page}</pageNumber>
         </getFilteredDeviceListv4>`
     );
 }
@@ -167,36 +168,60 @@ function parseSIMList( simlist ) {
     console.warn("Parsing list...");
 
     parseString(simlist, function(err, result) {
-      var list = result['SOAP-ENV:Envelope']['SOAP-ENV:Body'][0]['getFilteredDeviceListv4Response'][0].return[0].deviceList[0].device;
-      allSIMs = [];
-      _.forEach(list, (value) => {
-        allSIMs.push({imsi: value.imsi[0], customerServiceProfile: value.customerServiceProfile[0], state: value.state[0]})
-      });
-
-      resolve(allSIMs);
+		allSIMs = [];
+    	if (result['SOAP-ENV:Envelope']['SOAP-ENV:Body'][0]['getFilteredDeviceListv4Response'][0].return[0].deviceList) {
+    		console.warn("got a list");
+			var list = result['SOAP-ENV:Envelope']['SOAP-ENV:Body'][0]['getFilteredDeviceListv4Response'][0].return[0].deviceList[0].device;
+	    	_.forEach(list, (value) => {
+	        	allSIMs.push({imsi: value.imsi[0], customerServiceProfile: value.customerServiceProfile[0], state: value.state[0]})
+	      	});
+		} else {
+			console.warn("end of list");
+		}
+      	resolve(allSIMs);
     });
   });
 }
 
 // returns a Promise that resolves to a list of SIM IDs
 async function getSIMList(listOnly) {
-  let theListResponse = null;
-  
-  if (FAKESIMLIST) {
-    // theListResponse = readSingleSIMListFromFile();
-    theListResponse = readSIMListFromFile();
-  } else {
-    theListResponse = await retrieveSIMList();
-  }
 
-  if (listOnly) {
-    console.log(theListResponse);
-    return;
-  } else {
-    let parsedList = await parseSIMList(theListResponse);
-    return parsedList;
-  }
+	let theWholeList = [];
 
+	if (FAKESIMLIST) {
+		// theListResponse = readSingleSIMListFromFile();
+		theWholeList = readSIMListFromFile();
+	} else {
+		let page = 1;
+		let done = false;
+
+		while (!done) {
+
+			let theListResponse = null;
+
+			if (FAKESIMLIST) {
+				// theListResponse = readSingleSIMListFromFile();
+				theListResponse = readSIMListFromFile();
+			} else {
+				theListResponse = await retrieveSIMList(page);
+			}
+
+			let parsedList=[];
+			if (listOnly) {
+				console.log(theListResponse);
+			} else {
+				parsedList = await parseSIMList(theListResponse);
+			}
+
+			if (parsedList.length) {
+				theWholeList = theWholeList.concat(parsedList);
+				page = page + 1;
+			} else {
+				done = true;
+			}
+		}
+	}
+	return(theWholeList);
 } 
 
 
@@ -266,49 +291,7 @@ function getReport() {
         </parameter>
       </reportParameters>
     </getReport>`
-  );
-
-
-          // <reportParameters xmlns="">
-          //   <parameter xmlns="">
-          //     <name xmlns="">PERIOD_START</name>
-          //     <value xmlns="">2017-10-30T00:00:00+00:00</value>
-          //   </parameter>
-          //   <parameter xmlns="">
-          //     <name xmlns="">PERIOD_END</name>
-          //     <value xmlns="">2017-10-31T00:00:00+00:00</value>
-          //   </parameter>
-          // </reportParameters>
-          
-            // <parameter Name="PERIOD_START" Value="2017-10-30T00:00:00+00:00"/>
-            // <parameter Name="PERIOD_END" Value="2017-10-31T00:00:00+00:00"/>
-
-          // <reportParameters xmlns="http://ws.gdsp.vodafone.com/">
-          //   <parameter xmlns="http://ws.gdsp.vodafone.com/">
-          //     <name xmlns="http://www.w3.org/2001/XMLSchema/">PERIOD_START</name>
-          //     <value xmlns="http://www.w3.org/2001/XMLSchema/">2017-10-30T00:00:00+00:00</value>
-          //   </parameter>
-          //   <parameter xmlns="http://ws.gdsp.vodafone.com/">
-          //     <name xmlns="http://www.w3.org/2001/XMLSchema/">PERIOD_END</name>
-          //     <value xmlns="http://www.w3.org/2001/XMLSchema/">2017-10-31T00:00:00+00:00</value>
-          //   </parameter>
-          // </reportParameters>
-
-
-
-            // <parameter xmlns="http://www.w3.org/2001/XMLSchema/" name="PERIOD_START" value="2017-10-30T00:00:00+00:00"/>
-            // <parameter xmlns="http://www.w3.org/2001/XMLSchema/" name="PERIOD_END" value="2017-10-31T00:00:00+00:00"/>
-
-
-            // <parameter xmlns="http://ws.gdsp.vodafone.com/">
-            //   <name xmlns="http://www.w3.org/2001/XMLSchema/">PERIOD_START</name>
-            //   <value xmlns="http://www.w3.org/2001/XMLSchema/">2017-10-30T00:00:00+00:00</value>
-            // </parameter>
-            // <parameter xmlns="http://ws.gdsp.vodafone.com/">
-            //   <name xmlns="http://www.w3.org/2001/XMLSchema/">PERIOD_END</name>
-            //   <value xmlns="http://www.w3.org/2001/XMLSchema/">2017-10-31T00:00:00+00:00</value>
-            // </parameter>
-     
+  ); 
 }
 
 // 
@@ -319,12 +302,13 @@ function getReport() {
 async function main() {
 
   // let theReports = await getReportDetails('cspDetailsByCustomer');
-  let theReports = await getReport();
-  console.log(theReports);
-  return;
+  // let theReports = await getReport();
+  // console.log(theReports);
+  // return;
 
   // get the list of devices we're working with
   let theList = await getSIMList(program.list);
+  console.warn(`got ${theList.length} SIMs`);
 
   // all we want is the list, we're done.
   if (program.list) {
@@ -336,7 +320,7 @@ async function main() {
   let num = program.num || theList.length;
   let end = Math.min(start+num, theList.length-start);
 
-  console.warn("starting at "+start);
+  console.warn(`starting at ${start}`);
 
   let active = 0;
   let found = 0;
@@ -348,6 +332,7 @@ async function main() {
     if (s.state == 'A') {
       active = active + 1;
       let dd = await getDeviceDetails(s.imsi);
+
       s.sessionLastCellId = dd.sessionLastCellId;
       if (dd.sessionLastCellId) {
         let loc = await getDeviceLocation(s.sessionLastCellId)
