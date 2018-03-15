@@ -121,7 +121,7 @@ function receiveDeviceLocation(cellId) {
         if(place.status=="ok") {
           resolve({lat:place.lat, lon:place.lon});
         } else {
-          resolve({lat:"undefined",lon:"undefined"});
+          resolve({lat:"undefined",lon:place.notice});
         }
       });
  });
