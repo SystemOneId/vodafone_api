@@ -62,14 +62,18 @@ function parseDeviceDetails(detailsXML) {
       var infoItems = response.deviceInformationList[0].deviceInformationItem;
 
       // spin through the items in the sim data and just return the last cell ID
+      replydata = { sessionLastCellId: null, sessionLastStartedTimestamp: null};
       _.forEach(infoItems, (value) => {
         if (value.itemValue) {
           if (value.itemName == 'sessionLastCellId') {
-            resolve({sessionLastCellId: value.itemValue[0]});
+            // resolve({sessionLastCellId: value.itemValue[0]});
+            replydata.sessionLastCellId = value.itemValue[0];
+          } else if (value.itemName == 'sessionLastStartedTimestamp') {
+            replydata.sessionLastStartedTimestamp = value.itemValue[0];
           }
         }
       });
-      resolve({sessionLastCellId: null});
+      resolve(replydata);
     });
   });
 }
@@ -119,9 +123,9 @@ function receiveDeviceLocation(cellId) {
       .then( ( response ) => {
         var place = JSON.parse(response);
         if(place.status=="ok") {
-          resolve({lat:place.lat, lon:place.lon});
+          resolve({lat:place.lat, lon:place.lon, address:place.address, accuracy:place.accuracy});
         } else {
-          resolve({lat:"undefined",lon:place.notice});
+          resolve({lat:"undefined",lon:place.notice,address:"",accuracy:""});
         }
       });
  });
@@ -188,7 +192,7 @@ async function getSIMList(listOnly) {
 
 	let theWholeList = [];
 
-	if (FAKESIMLIST) {
+	if (FAKESIMLIST && false) {
 		// theListResponse = readSingleSIMListFromFile();
 		theWholeList = readSIMListFromFile();
 	} else {
@@ -202,6 +206,7 @@ async function getSIMList(listOnly) {
 			if (FAKESIMLIST) {
 				// theListResponse = readSingleSIMListFromFile();
 				theListResponse = readSIMListFromFile();
+        		done=true;
 			} else {
 				theListResponse = await retrieveSIMList(page);
 			}
@@ -209,9 +214,9 @@ async function getSIMList(listOnly) {
 			let parsedList=[];
 			if (listOnly) {
 				console.log(theListResponse);
-			} else {
-				parsedList = await parseSIMList(theListResponse);
-			}
+			} 
+
+			parsedList = await parseSIMList(theListResponse);
 
 			if (parsedList.length) {
 				theWholeList = theWholeList.concat(parsedList);
@@ -325,6 +330,8 @@ async function main() {
   let active = 0;
   let found = 0;
 
+  console.log("imsi,state,profile,last cell id,lat,lon,last session start");
+
   // if we use _.each here, things execute out of order due to the wonders of async programming.
   for (let i=start; i<end; i=i+1 ) {
     console.warn(`${i} -> ${end}`)
@@ -334,16 +341,19 @@ async function main() {
       let dd = await getDeviceDetails(s.imsi);
 
       s.sessionLastCellId = dd.sessionLastCellId;
+      s.sessionLastStartedTimestamp = dd.sessionLastStartedTimestamp;
       if (dd.sessionLastCellId) {
         let loc = await getDeviceLocation(s.sessionLastCellId)
         s.lat = loc.lat;
         s.lon = loc.lon;
+        s.accuracy = loc.accuracy;
+        s.address = loc.address;
         found = found + 1;
       }
     } else {
       s.lat = s.lon = "inactive";
     }
-    console.log(`${s.imsi},${s.state},${s.customerServiceProfile},${s.sessionLastCellId},${s.lat},${s.lon}`)
+    console.log(`${s.imsi},${s.state},${s.customerServiceProfile},${s.sessionLastCellId},${s.lat},${s.lon},${s.sessionLastStartedTimestamp},${s.address},${s.accuracy}`);
   }
 
   console.warn(`${active} active, ${found} found`);
