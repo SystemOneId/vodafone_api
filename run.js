@@ -324,13 +324,14 @@ async function main() {
   let start = program.start || 0;
   let num = program.num || theList.length;
   let end = Math.min(start+num, theList.length-start);
+  let mcc = program.mcc || 0;
 
   console.warn(`starting at ${start}`);
 
   let active = 0;
   let found = 0;
 
-  console.log("imsi,state,profile,last cell id,lat,lon,last session start");
+  console.log("imsi,state,profile,last cell id,lat,lon,last session start,location,accuracy");
 
   // if we use _.each here, things execute out of order due to the wonders of async programming.
   for (let i=start; i<end; i=i+1 ) {
@@ -342,18 +343,27 @@ async function main() {
 
       s.sessionLastCellId = dd.sessionLastCellId;
       s.sessionLastStartedTimestamp = dd.sessionLastStartedTimestamp;
-      if (dd.sessionLastCellId) {
-        let loc = await getDeviceLocation(s.sessionLastCellId)
-        s.lat = loc.lat;
-        s.lon = loc.lon;
-        s.accuracy = loc.accuracy;
-        s.address = loc.address;
-        found = found + 1;
+
+      if (s.sessionLastCellId) {
+      	lastMcc = parseInt(s.sessionLastCellId.split("-")[0],10)
+      } else {
+      	lastMcc = 0
       }
+
+      if (mcc==0 || lastMcc == mcc) {
+	      if (dd.sessionLastCellId) {
+	        let loc = await getDeviceLocation(s.sessionLastCellId)
+	        s.lat = loc.lat;
+	        s.lon = loc.lon;
+	        s.accuracy = loc.accuracy;
+	        s.address = loc.address;
+	        found = found + 1;
+	      }
+	  }
     } else {
       s.lat = s.lon = "inactive";
     }
-    console.log(`${s.imsi},${s.state},${s.customerServiceProfile},${s.sessionLastCellId},${s.lat},${s.lon},${s.sessionLastStartedTimestamp},${s.address},${s.accuracy}`);
+    console.log(`${s.imsi},${s.state},${s.customerServiceProfile},${s.sessionLastCellId},${s.lat},${s.lon},${s.sessionLastStartedTimestamp},"${s.address}",${s.accuracy}`);
   }
 
   console.warn(`${active} active, ${found} found`);
@@ -366,6 +376,7 @@ program
   .option('-n, --num <n>', 'Max number to grab', parseInt)
   .option('-s, --start <n>', 'Starting number', parseInt)
   .option('-l --list','Only get the SIM list XML')
+  .option('-m --mcc <n>', 'Only get location for particular mcc', parseInt)
   .description('run')
   .parse(process.argv);
 
